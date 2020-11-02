@@ -10,7 +10,6 @@ namespace CommsLIBLite.Base
         int _size;
         T[] _values = null;
         int _valuesIndex = 0;
-        int _valueCount = 0;
 
         public CircularBuffer(int size)
         {
@@ -20,14 +19,18 @@ namespace CommsLIBLite.Base
 
         public void Add(T newValue)
         {
-            _values[_valuesIndex] = newValue;
-            _valuesIndex++;
-            _valuesIndex %= _size;
-
-            if (_valueCount < _size)
-                _valueCount++;
+            if(Count < _size)
+            {
+                _values[_valuesIndex] = newValue;
+                _valuesIndex++;
+                _valuesIndex %= _size;
+                Count++;
+            }
         }
 
+
+
+        #region Implementation of IEnumerable
         public IEnumerator<T> GetEnumerator()
         {
             return ((IEnumerable<T>)_values).GetEnumerator();
@@ -37,9 +40,12 @@ namespace CommsLIBLite.Base
         {
             return ((IEnumerable<T>)_values).GetEnumerator();
         }
+        #endregion
 
         public T Newest { get => _values[ (_valuesIndex - 1) < 0 ? _size-1 : (_valuesIndex - 1)]; }
 
         public T Oldest { get => _values[_valuesIndex]; }
+
+        public int Count { get; private set; } = 0;
     }
 }
